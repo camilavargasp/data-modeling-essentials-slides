@@ -4,23 +4,159 @@ author: "NCEAS Open Science Synthesis for the Delta Science Program"
 format: revealjs
 ---
 
-## Quarto
+<style>
+    .reveal section p {
+    display: inline-block;
+    font-size: 0.6em;
+    line-height: 1.2em;
+    vertical-align: center;
+  }
+ </style>
 
-Quarto enables you to weave together content and executable code into a finished presentation. To learn more about Quarto presentations see <https://quarto.org/docs/presentations/>.
+## Learning Objectives {.unnumbered}
 
-## Bullets
+- Introduce `dplyr` and `tidyr` functions to clean and wrangle data for analysis
+- Learn about the Split-Apply-Combine strategy and how it applies to data wrangling
+- Describe the difference between wide vs. long table formats and how to convert between them
 
-When you click the **Render** button a document will be generated that includes:
+## Example 1
+Suppose you have the following `data.frame` called `length_data` with data about salmon length and want to calculate the average length per year. 
 
--   Content authored with markdown
--   Output from executable code
+|  year|  length\_cm|
+|-----:|-----------:|
+|  1990|    5.673318|
+|  1991|    3.081224|
+|  1991|    4.592696|
+|  1992|    4.381523|
+|  1992|    5.597777|
+|  1992|    4.900052|
 
-## Code
+## 
 
-When you click the **Render** button a presentation will be generated that includes both content and the output of embedded code. You can embed code like this:
+|  year|  length\_cm|
+|-----:|-----------:|
+|  1990|    5.673318|
+|  1991|    3.081224|
+|  1991|    4.592696|
+|  1992|    4.381523|
+|  1992|    5.597777|
+|  1992|    4.900052|
+
+The `dplyr` R library provides a fast and powerful way to do this calculation in a few lines of code:
+
+```{R}
+#| echo: true
+#| eval: false
+
+length_data %>% 
+  group_by(year) %>% 
+  summarize(mean_length_cm = mean(length_cm))
+```
+
+## Example 2
+ Another process we often need to do is to "reshape" our data. Consider the following table that is in what we call "wide" format:
+
+| site   | 1990 | 1991 | ... | 1993 |
+|--------|------|------|-----|------|
+| gold   | 100  | 118  | ... | 112  |
+| lake   | 100  | 118  | ... | 112  |
+| ...    | ...  | ...  | ... | ...  |
+| dredge | 100  | 118  | ... | 112  |
+
+
+##
 
 ```{r}
-1 + 1
+#| echo: true
+#| eval: false
+
+site_data %>% 
+  pivot_longer(-site, names_to = "year", values_to = "length")
 ```
+
+| site   | year |  length|
+|--------|------|-------:|
+| gold   | 1990 |     101|
+| lake   | 1990 |     104|
+| dredge | 1990 |     144|
+| ...    | ...  |     ...|
+| dredge | 1993 |     145|
+
+
+# To RStudio!
+
+# The pipe operator (`%>%`)
+
+## the pipe operator:
+
+- `%>%`
+- Used by  the `tidyr` and the `dplyr` packages to
+- chains together operations by
+- taking the output of a previous statement, and use it as the input to the next statement.
+
+::: {.callout-caution icon=false}
+## Shortcut
+- Windows: `Ctrl` + `Shift` + `M`     
+
+- Mac: `cmd` + `shift` + `M`
+:::
+
+## Example
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(readr)
+
+catch_original <- read_csv("https://knb.ecoinformatics.org/knb/d1/mn/v2/object/df35b.302.1")
+```
+
+Suppose we want to filter our `catch_original` data by `Year>1900` and then select the `Sockeye` column.
+
+
+Without the pipe `%>%` we would need to use intermediate datasets:
+
+::: {.fragment}
+```{r}
+#| echo: true
+#| eval: false
+
+catch_filtered <- filter(catch_original, Year>1900)
+catch_selected <- select(catch_filtered, Year)
+```
+:::
+
+::: {.fragment}
+or compose the functions:
+```{R}
+#| echo: true
+#| eval: false
+
+catch_selected <- select(filter(catch_original, Year>1900), Year)
+```
+:::
+
+::: {.fragment}
+With the pipe, we can write:
+
+```{R}
+#| echo: true
+#| eval: false
+
+catch_selected <- catch_original %>% 
+    filter(Year>1900) %>% 
+    select(Year)
+```
+
+
+This means:    
+start with the `catch_original` dataframe,     
+send that to the `filter` function with the `Year>1900` parameter,    
+then send the result of that filter into the `select` function with the `Year` parameter.   
+
+:::
+
+## 
+
 
 

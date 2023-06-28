@@ -1,0 +1,123 @@
+---
+title: "cleaning_and_wrangling_data_KEY"
+author: CGG
+format: html
+---
+
+Setup:
+- delete everything below the header
+- create the following sections:
+    - Load Libraries
+    - Load Data
+    - Data Cleaning & Wrangling
+
+## Load Libraries
+        
+```{r}
+#| warning: false
+
+library(dplyr)
+library(tidyr)
+library(readr)
+```
+
+
+# Load Data
+
+```{r}
+#| message: false
+catch_original <- read_csv("https://knb.ecoinformatics.org/knb/d1/mn/v2/object/df35b.302.1")
+```
+
+
+# Initial Data Exploration
+
+```{r}
+## Prints the column names of my data frame
+colnames(catch_original)
+```
+
+```{r}
+## First 6 lines of the data frame
+head(catch_original)
+```
+
+```{r}
+## Summary of each column of data
+summary(catch_original)
+```
+
+```{r}
+## Prints unique values in a column (in this case, the region)
+unique(catch_original$Region)
+```
+
+```{r}
+## Opens data frame in its own tab to see each row and column of the data
+View(catch_original)
+```
+
+## Pipe operator
+
+Go back to slides
+
+## Selecting columns
+We want to remove the `All` and the `notesRegCode` columns.
+```{r}
+catch_data <- catch_original %>% 
+    select("Region","Year","Chinook","Sockeye","Coho","Pink","Chum")
+```
+
+The `select()` function also allows you to say which columns you *don't* want, by passing unquoted column names preceded by minus (`-`) signs:
+
+```{r}
+#| eval: false
+
+# do it in console
+catch_original %>% select(-All,-notesRegCode)
+```
+
+
+## Quality Check
+
+```{r}
+dplyr::glimpse(catch_data)
+```
+Does anything look weird? A: Chinook <chr>
+
+# Change column content `mutate()`
+
+We can use the `mutate()` function to change a column, or to create a new column. 
+
+First, let's try to convert the Chinook catch values to `numeric` type using the `as.numeric()` function, and overwrite the old Chinook column.
+
+```{r}
+catch_clean <- 
+    catch_data %>% 
+    mutate(Chinook = as.numeric(Chinook))
+
+catch_clean
+```
+
+We get a warning ``"NAs introduced by coercion"`` which is R telling us that it couldn't convert every value to an integer and, for those values it couldn't convert, it put an `NA` in its place. 
+
+This is behavior we commonly experience when cleaning data sets and it's important to have the skills to deal with it when it comes up.
+
+To investigate, let's isolate the issue. 
+
+We can find out which values are `NA`s with a combination of `is.na()` and `which()`, and save that to a variable called `i`.
+
+```{r}
+# Run each of these by parts in the console
+i <- catch_clean$Chinook %>% is.na() %>% which()
+i
+
+# alternatively which(is.na(catch_clean$Chinook))
+```
+
+It looks like there is only one problem row, lets have a look at it in the original data.
+
+```{r}
+catch_data[i,]
+```
+
