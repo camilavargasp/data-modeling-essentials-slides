@@ -156,7 +156,86 @@ then send the result of that filter into the `select` function with the `Year` p
 
 :::
 
+# Fancy `mutate()`
+
 ## 
 
+![](clean-wrangle-images/mutate_1.png){fig-align="center"}
+
+##
+
+![](clean-wrangle-images/mutate_2.png){fig-align="center"}
+
+##
+
+![](clean-wrangle-images/mutate_3.png){fig-align="center"}
+
+##
+
+![](clean-wrangle-images/mutate_4.png){fig-align="center"}
+
+##
+
+![](clean-wrangle-images/mutate_5.png){fig-align="center"}
+
+##
+
+![](clean-wrangle-images/mutate_6.png){fig-align="center"}
+
+# Split-Apply-Combine
 
 
+Think about how we would calculate the average catch per region “by hand”. It would be something like this:
+
+1. We start with our table and notice there are multiple regions in the “Regions” column.
+
+2. We split our original table to group all observations from the same region together.
+
+3. We calculate the average catch for each of the groups we form.
+
+4. Then we combine the values for average catch per region into a single table.
+
+
+##
+
+![](clean-wrangle-images/regions-split-apply-combine.png){fig-align="center"}
+
+## `filter()`
+`filter()` function to filter our `data.frame` to rows matching some condition
+
+GOAL: go back to our original `data.frame` and do some `filter()`ing
+
+```{r}
+sse_catch <- catch_long %>%
+    filter(Region == "SSE")
+
+head(sse_catch)
+```
+
+::: callout-note
+## Exercise
+
+- Filter to just catches of over one million fish
+- Filter to just Chinook from the SSE region
+:::
+
+```{r}
+#| code-summary: "Answer"
+#| eval: false
+
+## Catches over a million fish
+catch_million <- catch_long %>%
+    filter(catch > 1000000)
+
+## Chinook from SSE data
+chinook_see <- catch_long %>%
+    filter(Region == "SSE",
+           species == "Chinook")
+
+## OR
+chinook_see <- catch_long %>%
+    filter(Region == "SSE" & species == "Chinook")
+```
+
+
+## Sorting data using `arrange()`

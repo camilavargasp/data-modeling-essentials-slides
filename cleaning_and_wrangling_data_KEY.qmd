@@ -54,7 +54,7 @@ unique(catch_original$Region)
 
 ```{r}
 ## Opens data frame in its own tab to see each row and column of the data
-View(catch_original)
+#View(catch_original)
 ```
 
 ## Pipe operator
@@ -96,12 +96,14 @@ catch_clean <-
     catch_data %>% 
     mutate(Chinook = as.numeric(Chinook))
 
-catch_clean
+#catch_clean
 ```
 
 We get a warning ``"NAs introduced by coercion"`` which is R telling us that it couldn't convert every value to an integer and, for those values it couldn't convert, it put an `NA` in its place. 
 
 This is behavior we commonly experience when cleaning data sets and it's important to have the skills to deal with it when it comes up.
+
+## Find row with `NA`
 
 To investigate, let's isolate the issue. 
 
@@ -109,10 +111,14 @@ We can find out which values are `NA`s with a combination of `is.na()` and `whic
 
 ```{r}
 # Run each of these by parts in the console
+which(is.na(catch_clean$Chinook))
+```
+
+
+```{r}
+# alternatively 
 i <- catch_clean$Chinook %>% is.na() %>% which()
 i
-
-# alternatively which(is.na(catch_clean$Chinook))
 ```
 
 It looks like there is only one problem row, lets have a look at it in the original data.
@@ -120,4 +126,200 @@ It looks like there is only one problem row, lets have a look at it in the origi
 ```{r}
 catch_data[i,]
 ```
+## Change I char value to 1 numeric
+
+GOAL: (assume there are many values of "I" in the Chinook dataframe) change the value of the `Chinook` column to 1 if the value is equal to `I`, 
+
+1. start with the catch_data dataframe, the final result will be stored in catch_clean    
+`catch_clean <- catch data`
+
+2. %>% : catch_data is the input to mutate()    
+
+```
+catch_clean <- catch_data %>%
+    mutate()
+```
+
+3. name of column to mutate = Chinook (this will overwrite the existing Chinook column)
+
+```
+catch_clean <- catch_data %>%
+    mutate(Chinook = )
+```
+
+4. we want to update the values of Chinook based on an "if-else" condition
+
+```
+catch_clean <- catch_data %>%
+    mutate(Chinook = 
+               if_else())
+```
+
+5. specify the condition: this means find all values in the Chinook column that equal “I”
+
+```
+catch_clean <- catch_data %>%
+    mutate(Chinook = 
+               if_else(condition = Chinook == "I")
+               )
+```
+
+6. specify how to change values based on condition: 
+
+if a value in Chinook == “I”,   
+then replace it by “1”,    
+else, keep the same value   
+
+
+```{r}
+catch_clean <- catch_data %>%
+    mutate(Chinook = 
+               if_else(condition = Chinook == "I", 
+                             true = "1", 
+                             false = Chinook))
+
+##check
+catch_clean[i, ]
+```
+
+
+Now we can convert to numeric in the same mutate code:
+
+```{r}
+catch_clean <- catch_data %>%
+    mutate(Chinook = if_else(condition = Chinook == "I", 
+                             true = "1", 
+                             false = Chinook),
+           Chinook = as.numeric(Chinook))
+
+##check
+catch_clean[i, ]
+```
+
+## `pivot_longer()` and `pivot_wider`
+
+data are in a wide format and we want the data in a long format instead. 
+
+`pivot_longer()` from the `tidyr` package helps us do  this conversion. 
+
+```{r}
+catch_long <- catch_clean %>% 
+    #pivot longer all columns except Region and Year
+    pivot_longer(
+        cols = -c(Region, Year),
+        names_to = "species",
+        values_to = "catch"
+    )
+
+head(catch_long)
+```
+
+- The first argument to `pivot_longer` is the columns over which we are pivoting. You can select these by listing either the names of the columns you do want to pivot, or in this case, the names of the columns you are not pivoting over. 
+
+- The `names_to` argument: this is the name of the column that you are creating from the column **names** of the columns you are pivoting over. 
+
+- The `values_to` argument: the name of the column that you are creating from the **values** in the columns you are pivoting over.
+
+The opposite of `pivot_longer()` is the `pivot_wider()` function. It works in a similar declarative fashion:
+
+```{r}
+catch_wide <- catch_long %>%
+    pivot_wider(names_from = species,
+                values_from = catch)
+
+head(catch_wide)
+```
+
+Same than we did above we can pull up the documentation of the function to remind ourselves what goes in which argument. Type `?pivot_wider` in the console.
+
+## Renaming columns `rename()`
+
+Notice the values in the `catch` column are very small (these are supposed to be annual catches). 
+
+[the metadata](https://knb.ecoinformatics.org/#view/df35b.304.2) : `catch` column is in thousands of fish
+
+GOAL: Rename the `catch` column to be called `catch_thousands` to be more accurate:
+
+```{r}
+catch_long <- catch_long %>%
+    rename(catch_thousands = catch)
+
+head(catch_long)
+```
+
+## Adding columns `mutate()`
+
+GOAL: create a column `catch` with units of fish, instead of thousands of fish:
+
+```{r}
+
+catch_long <- catch_long %>%
+    mutate(catch = catch_thousands * 1000)
+
+head(catch_long)
+```
+
+let's delete the catch_thousands column since we don't need it anymore:
+
+```{r}
+
+catch_long <- catch_long %>%
+    select(-catch_thousands)
+
+head(catch_long)
+```
+## Summary statistics
+
+GOAL: getting the average catch per region.
+
+In our initial data exploration we saw there are 18 regions, we can easily see their names again:
+
+```{r}
+unique(catch_original$Region)
+```
+
+Strategy: Split-apply-combine
+
+bit.ly
+`bit.ly/3ppGUsQ`
+
+![Split-Apply-Combine!](https://learning.nceas.ucsb.edu/2023-06-delta/images/regions-split-apply-combine.png)
+
+1. **Split**: Split the data into logical groups (e.g., region, species, etc.)
+
+2. **Apply**: Calculate some summary statistic on each group (e.g. mean catch *by* year, number of individuals *per* species)
+
+3. **Combine**: Combine the statistic calculated on each group back together into a single table
+
+Using `dplyr`:
+
+```{r}
+mean_region <- catch_long %>%
+    group_by(Region) %>%
+    summarize(mean_catch = mean(catch))
+
+head(mean_region)
+```
+
+Let's see how the previous code implements the Split-Apply-Combine strategy:
+
+1. `group_by(Region)`: this is telling R to **split** the dataframe and create a group for each different value in the column `Region`. R just keeps track of the groups, it doesn't return separate dataframes per region. 
+
+
+2. `mean(catch)`: here `mean` is the function we want to **apply** to the column `catch` in each group.
+
+
+3. `summarize(catch = mean(catch))` the function `summarize()` is used to **combine** the results of `mean(catch)` in each group into a single table. The argument `mean_catch = mean(catch)` indicates that the column having the results of `mean(catch)` will be named `mean_catch`. 
+
+* GOAL: count the number of rows in each group. We have to use a special function from `dplyr`, `n()`.
+
+```{r}
+n_region <- catch_long %>%
+    group_by(Region) %>%
+    summarize(n = n())
+
+head(n_region)
+```
+
+
 
