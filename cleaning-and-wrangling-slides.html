@@ -411,171 +411,82 @@
 <li>Describe the difference between wide vs.&nbsp;long table formats and how to convert between them</li>
 </ul>
 </section>
-<section id="example-1" class="slide level2">
-<h2>Example 1</h2>
-<p>Suppose you have the following <code>data.frame</code> called <code>length_data</code> with data about salmon length and want to calculate the average length per year.</p>
-<table>
-<thead>
-<tr class="header">
-<th style="text-align: right;">year</th>
-<th style="text-align: right;">length_cm</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: right;">1990</td>
-<td style="text-align: right;">5.673318</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">1991</td>
-<td style="text-align: right;">3.081224</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">1991</td>
-<td style="text-align: right;">4.592696</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">1992</td>
-<td style="text-align: right;">4.381523</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">1992</td>
-<td style="text-align: right;">5.597777</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">1992</td>
-<td style="text-align: right;">4.900052</td>
-</tr>
-</tbody>
-</table>
-</section>
 <section id="section" class="slide level2">
 <h2></h2>
 <table>
+<caption>Common <code>dplyr</code> functions</caption>
+<colgroup>
+<col style="width: 25%">
+<col style="width: 75%">
+</colgroup>
 <thead>
 <tr class="header">
-<th style="text-align: right;">year</th>
-<th style="text-align: right;">length_cm</th>
+<th>Function name</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: right;">1990</td>
-<td style="text-align: right;">5.673318</td>
+<td><code>mutate()</code></td>
+<td>Creates modify and deletes columns</td>
 </tr>
 <tr class="even">
-<td style="text-align: right;">1991</td>
-<td style="text-align: right;">3.081224</td>
+<td><code>group_by()</code></td>
+<td>Groups data by one or more variables</td>
 </tr>
 <tr class="odd">
-<td style="text-align: right;">1991</td>
-<td style="text-align: right;">4.592696</td>
+<td><code>summarise()</code></td>
+<td>Summaries each group down to one row</td>
 </tr>
 <tr class="even">
-<td style="text-align: right;">1992</td>
-<td style="text-align: right;">4.381523</td>
+<td><code>select()</code></td>
+<td>Keep or drop columns using their names</td>
 </tr>
 <tr class="odd">
-<td style="text-align: right;">1992</td>
-<td style="text-align: right;">5.597777</td>
+<td><code>filter()</code></td>
+<td>Keeps rows that matches conditions</td>
 </tr>
 <tr class="even">
-<td style="text-align: right;">1992</td>
-<td style="text-align: right;">4.900052</td>
-</tr>
-</tbody>
-</table>
-<p>The <code>dplyr</code> R library provides a fast and powerful way to do this calculation in a few lines of code:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>length_data <span class="sc">%&gt;%</span> </span>
-<span id="cb1-2"><a href="#cb1-2"></a>  <span class="fu">group_by</span>(year) <span class="sc">%&gt;%</span> </span>
-<span id="cb1-3"><a href="#cb1-3"></a>  <span class="fu">summarize</span>(<span class="at">mean_length_cm =</span> <span class="fu">mean</span>(length_cm))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-<section id="example-2" class="slide level2">
-<h2>Example 2</h2>
-<p>Another process we often need to do is to “reshape” our data. Consider the following table that is in what we call “wide” format:</p>
-<table>
-<thead>
-<tr class="header">
-<th>site</th>
-<th>1990</th>
-<th>1991</th>
-<th>…</th>
-<th>1993</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>gold</td>
-<td>100</td>
-<td>118</td>
-<td>…</td>
-<td>112</td>
-</tr>
-<tr class="even">
-<td>lake</td>
-<td>100</td>
-<td>118</td>
-<td>…</td>
-<td>112</td>
+<td><code>arrange()</code></td>
+<td>order rows using columns variable</td>
 </tr>
 <tr class="odd">
-<td>…</td>
-<td>…</td>
-<td>…</td>
-<td>…</td>
-<td>…</td>
-</tr>
-<tr class="even">
-<td>dredge</td>
-<td>100</td>
-<td>118</td>
-<td>…</td>
-<td>112</td>
+<td><code>rename()</code></td>
+<td>Rename a column</td>
 </tr>
 </tbody>
 </table>
 </section>
 <section id="section-1" class="slide level2">
 <h2></h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>site_data <span class="sc">%&gt;%</span> </span>
-<span id="cb2-2"><a href="#cb2-2"></a>  <span class="fu">pivot_longer</span>(<span class="sc">-</span>site, <span class="at">names_to =</span> <span class="st">"year"</span>, <span class="at">values_to =</span> <span class="st">"length"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
 <table>
+<caption>Common <code>tidyr</code> functions</caption>
+<colgroup>
+<col style="width: 25%">
+<col style="width: 75%">
+</colgroup>
 <thead>
 <tr class="header">
-<th>site</th>
-<th>year</th>
-<th style="text-align: right;">length</th>
+<th>Function name</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>gold</td>
-<td>1990</td>
-<td style="text-align: right;">101</td>
+<td><code>pivot_longer()</code></td>
+<td>transforms data from a wide to a long format</td>
 </tr>
 <tr class="even">
-<td>lake</td>
-<td>1990</td>
-<td style="text-align: right;">104</td>
+<td><code>pivot_wider()</code></td>
+<td>transforms data from a long to a wide format</td>
 </tr>
 <tr class="odd">
-<td>dredge</td>
-<td>1990</td>
-<td style="text-align: right;">144</td>
+<td><code>unite()</code></td>
+<td>Unite multiple columns into one by pasting strings together</td>
 </tr>
 <tr class="even">
-<td>…</td>
-<td>…</td>
-<td style="text-align: right;">…</td>
-</tr>
-<tr class="odd">
-<td>dredge</td>
-<td>1993</td>
-<td style="text-align: right;">145</td>
+<td><code>separate()</code></td>
+<td>Separate a character column into multiple columns with a regular expression or numeric locations</td>
 </tr>
 </tbody>
 </table>
@@ -621,22 +532,22 @@
 <p>Without the pipe <code>%&gt;%</code> we would need to use intermediate datasets:</p>
 <div class="fragment">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>catch_filtered <span class="ot">&lt;-</span> <span class="fu">filter</span>(catch_original, Year<span class="sc">&gt;</span><span class="dv">1900</span>)</span>
-<span id="cb3-2"><a href="#cb3-2"></a>catch_selected <span class="ot">&lt;-</span> <span class="fu">select</span>(catch_filtered, Year)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>catch_filtered <span class="ot">&lt;-</span> <span class="fu">filter</span>(catch_original, Year<span class="sc">&gt;</span><span class="dv">1900</span>)</span>
+<span id="cb1-2"><a href="#cb1-2"></a>catch_selected <span class="ot">&lt;-</span> <span class="fu">select</span>(catch_filtered, Year)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <div class="fragment">
 <p>or compose the functions:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>catch_selected <span class="ot">&lt;-</span> <span class="fu">select</span>(<span class="fu">filter</span>(catch_original, Year<span class="sc">&gt;</span><span class="dv">1900</span>), Year)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>catch_selected <span class="ot">&lt;-</span> <span class="fu">select</span>(<span class="fu">filter</span>(catch_original, Year<span class="sc">&gt;</span><span class="dv">1900</span>), Year)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <div class="fragment">
 <p>With the pipe, we can write:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>catch_selected <span class="ot">&lt;-</span> catch_original <span class="sc">%&gt;%</span> </span>
-<span id="cb5-2"><a href="#cb5-2"></a>    <span class="fu">filter</span>(Year<span class="sc">&gt;</span><span class="dv">1900</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb5-3"><a href="#cb5-3"></a>    <span class="fu">select</span>(Year)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>catch_selected <span class="ot">&lt;-</span> catch_original <span class="sc">%&gt;%</span> </span>
+<span id="cb3-2"><a href="#cb3-2"></a>    <span class="fu">filter</span>(Year<span class="sc">&gt;</span><span class="dv">1900</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-3"><a href="#cb3-3"></a>    <span class="fu">select</span>(Year)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>This means:<br>
 start with the <code>catch_original</code> dataframe,<br>
@@ -687,7 +598,176 @@ then send the result of that filter into the <code>select</code> function with t
 <section id="section-8" class="slide level2">
 <h2></h2>
 
-<img data-src="clean-wrangle-images/regions-split-apply-combine.png" class="r-stretch quarto-figure-center"><div class="footer footer-default">
+<img data-src="clean-wrangle-images/regions-split-apply-combine.png" class="r-stretch quarto-figure-center"></section>
+<section id="example-1" class="slide level2">
+<h2>Example 1</h2>
+<p>Suppose you have the following <code>data.frame</code> called <code>length_data</code> with data about salmon length and want to calculate the average length per year.</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: right;">year</th>
+<th style="text-align: right;">length_cm</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1990</td>
+<td style="text-align: right;">5.673318</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1991</td>
+<td style="text-align: right;">3.081224</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1991</td>
+<td style="text-align: right;">4.592696</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1992</td>
+<td style="text-align: right;">4.381523</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1992</td>
+<td style="text-align: right;">5.597777</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1992</td>
+<td style="text-align: right;">4.900052</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="section-9" class="slide level2">
+<h2></h2>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: right;">year</th>
+<th style="text-align: right;">length_cm</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1990</td>
+<td style="text-align: right;">5.673318</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1991</td>
+<td style="text-align: right;">3.081224</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1991</td>
+<td style="text-align: right;">4.592696</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1992</td>
+<td style="text-align: right;">4.381523</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1992</td>
+<td style="text-align: right;">5.597777</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1992</td>
+<td style="text-align: right;">4.900052</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>dplyr</code> R library provides a fast and powerful way to do this calculation in a few lines of code:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>length_data <span class="sc">%&gt;%</span> </span>
+<span id="cb4-2"><a href="#cb4-2"></a>  <span class="fu">group_by</span>(year) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-3"><a href="#cb4-3"></a>  <span class="fu">summarize</span>(<span class="at">mean_length_cm =</span> <span class="fu">mean</span>(length_cm))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="example-2" class="slide level2">
+<h2>Example 2</h2>
+<p>Another process we often need to do is to “reshape” our data. Consider the following table that is in what we call “wide” format:</p>
+<table>
+<thead>
+<tr class="header">
+<th>site</th>
+<th>1990</th>
+<th>1991</th>
+<th>…</th>
+<th>1993</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>gold</td>
+<td>100</td>
+<td>118</td>
+<td>…</td>
+<td>112</td>
+</tr>
+<tr class="even">
+<td>lake</td>
+<td>100</td>
+<td>118</td>
+<td>…</td>
+<td>112</td>
+</tr>
+<tr class="odd">
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+</tr>
+<tr class="even">
+<td>dredge</td>
+<td>100</td>
+<td>118</td>
+<td>…</td>
+<td>112</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="section-10" class="slide level2">
+<h2></h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>site_data <span class="sc">%&gt;%</span> </span>
+<span id="cb5-2"><a href="#cb5-2"></a>  <span class="fu">pivot_longer</span>(<span class="sc">-</span>site, <span class="at">names_to =</span> <span class="st">"year"</span>, <span class="at">values_to =</span> <span class="st">"length"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<table>
+<thead>
+<tr class="header">
+<th>site</th>
+<th>year</th>
+<th style="text-align: right;">length</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>gold</td>
+<td>1990</td>
+<td style="text-align: right;">101</td>
+</tr>
+<tr class="even">
+<td>lake</td>
+<td>1990</td>
+<td style="text-align: right;">104</td>
+</tr>
+<tr class="odd">
+<td>dredge</td>
+<td>1990</td>
+<td style="text-align: right;">144</td>
+</tr>
+<tr class="even">
+<td>…</td>
+<td>…</td>
+<td style="text-align: right;">…</td>
+</tr>
+<tr class="odd">
+<td>dredge</td>
+<td>1993</td>
+<td style="text-align: right;">145</td>
+</tr>
+</tbody>
+</table>
+<div class="footer footer-default">
 
 </div>
 </section></section>

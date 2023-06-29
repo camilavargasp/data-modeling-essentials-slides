@@ -5,8 +5,11 @@ format: html
 ---
 
 Setup:
+
 - delete everything below the header
+
 - create the following sections:
+
     - Load Libraries
     - Load Data
     - Data Cleaning & Wrangling
@@ -23,6 +26,35 @@ library(readr)
 
 
 # Load Data
+
+https://bit.ly/data-wrangle-lesson-data
+
+::: callout-tip
+## Setup
+
+1. Go to [KNB Data Package Alaska commercial salmon catches by management region (1886- 1997)](https://knb.ecoinformatics.org/view/df35b.304.2)
+
+2. Find the data file `byerlySalmonByRegion.csv`. Right click the "Download" button and select "Copy Link Address"
+
+3. Paste the copied URL into the `read_csv()` function
+
+The code chunk you use to read in the data should look something like this:
+
+```{r}
+#| message: false
+catch_original <- read_csv("https://knb.ecoinformatics.org/knb/d1/mn/v2/object/df35b.302.1")
+```
+
+**Note for Windows users:** Keep in mind, if you want to replicate this workflow in your local computer you also need to use the `url()` function here with the argument `method = "libcurl"`. 
+
+It would look like this:
+
+```{r}
+#| eval: false
+catch_original <- read.csv(url("https://knb.ecoinformatics.org/knb/d1/mn/v2/object/df35b.302.1", method = "libcurl"))
+```
+
+:::
 
 ```{r}
 #| message: false
@@ -320,6 +352,181 @@ n_region <- catch_long %>%
 
 head(n_region)
 ```
+
+## `filter()`
+`filter()` function to filter our `data.frame` to rows matching some condition
+
+GOAL: go back to our original `data.frame` and do some `filter()`ing
+
+```{r}
+sse_catch <- catch_long %>%
+    filter(Region == "SSE")
+
+head(sse_catch)
+```
+
+::: callout-note
+## Exercise
+
+- Filter to just catches of over one million fish
+- Filter to just Chinook from the SSE region
+:::
+
+```{r}
+#| code-summary: "Answer"
+#| eval: false
+
+## Catches over a million fish
+catch_million <- catch_long %>%
+    filter(catch > 1000000)
+
+## Chinook from SSE data
+chinook_see <- catch_long %>%
+    filter(Region == "SSE",
+           species == "Chinook")
+
+## OR
+chinook_see <- catch_long %>%
+    filter(Region == "SSE" & species == "Chinook")
+```
+
+
+## Sorting data using `arrange()`
+
+The arrange() function is used to sort the rows of a data.frame.
+
+GOAL: re-calculate mean catch by region, and then arrange() the output by mean catch:
+
+```{R}
+mean_region <- catch_long %>%
+    group_by(Region) %>%
+    summarize(mean_catch = mean(catch)) %>%
+    arrange(mean_catch)
+
+head(mean_region)
+```
+
+
+default sorting order of `arrange()` is to sort in ascending order. 
+
+To reverse the sort order, wrap the column name inside the `desc()` function:
+
+```{r}
+mean_region <- catch_long %>%
+    group_by(Region) %>%
+    summarize(mean_catch = mean(catch)) %>%
+    arrange(desc(mean_catch))
+
+head(mean_region)
+```
+
+## `separate()` and `unite()`
+
+The `separate()` function allow us to easily split a single column into numerous. Its complement, the `unite()` function, allows ys to combine multiple columns into a single one.
+
+This can come in really handy when we need to split a column into two pieces by a consistent separator (like a dash).
+
+Let's make a new data frame with fake data to illustrate this.
+
+Here we have a set of site identification codes with information about the island where the site is (the first 3 letters) and a site number (the 3 numbers).
+
+GOAL: create a column with just the island information.
+
+```{r}
+sites_df <- data.frame(site = c("HAW-101",
+                            "HAW-103",
+                            "OAH-320",
+                            "OAH-219",
+                            "MAI-039"))
+
+sites_df %>%
+    separate(site, c("island", "site_number"), "-")
+```
+
+::: callout-note
+## Exercise
+
+Split the `city` column in the data frame `cities_df` into `city` and `state_code` columns
+
+```{r}
+## create `cities_df`
+cities_df <- data.frame(city = c("Juneau AK",
+                                 "Sitka AK",
+                                 "Anchorage AK"))
+```
+:::
+
+
+```{r}
+#| code-summary: "Answer"
+colnames(cities_df)
+
+cities_clean <- cities_df %>%
+    separate(city, c("city", "state_code"), " ")
+cities_clean
+```
+
+
+The `unite()` function does just the reverse of `separate()`.
+
+If we have a data.frame that contains columns for year, month, and day, we might want to unite these into a single date column.
+
+```{r}
+dates_df <- data.frame(
+    year = c("1930",
+             "1930",
+             "1930"),
+    month = c("12",
+              "12",
+              "12"),
+    day = c("14",
+            "15",
+            "16")
+)
+
+dates_df %>%
+    unite(date, year, month, day, sep = "-")
+```
+
+## All code together
+
+
+```{r}
+#| catch: true
+#| message: false
+catch_original <- read_csv(url("https://knb.ecoinformatics.org/knb/d1/mn/v2/object/df35b.302.1", 
+                               method = "libcurl"))
+
+mean_region <- catch_original %>%
+  select(-All, -notesRegCode) %>% 
+  mutate(Chinook = ifelse(Chinook == "I", 1, Chinook)) %>% 
+  mutate(Chinook = as.numeric(Chinook)) %>% 
+  pivot_longer(-c(Region, Year), 
+               names_to = "species", 
+               values_to = "catch") %>%
+  mutate(catch = catch*1000) %>% 
+  group_by(Region) %>% 
+  summarize(mean_catch = mean(catch)) %>% 
+arrange(desc(mean_catch))
+
+head(mean_region)
+```
+
+
+We have completed our lesson on Cleaning and Wrangling data. Before we break, let's practice our Github workflow.
+
+## Stage > Commit > Pull > Push
+
+::: callout-tip
+## Steps
+
+1. Save the `.Rmd` you have been working on for this lesson.
+2. Knit the R Markdown file. This is a way to test everything in your code is working.
+3. ```Stage > Commit > Pull > Push```
+:::
+
+
+
 
 
 

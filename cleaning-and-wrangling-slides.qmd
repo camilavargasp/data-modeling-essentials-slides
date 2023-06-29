@@ -19,68 +19,30 @@ format: revealjs
 - Learn about the Split-Apply-Combine strategy and how it applies to data wrangling
 - Describe the difference between wide vs. long table formats and how to convert between them
 
-## Example 1
-Suppose you have the following `data.frame` called `length_data` with data about salmon length and want to calculate the average length per year. 
+##
 
-|  year|  length\_cm|
-|-----:|-----------:|
-|  1990|    5.673318|
-|  1991|    3.081224|
-|  1991|    4.592696|
-|  1992|    4.381523|
-|  1992|    5.597777|
-|  1992|    4.900052|
+| Function name   | Description |
+|--------|------|
+| `mutate()`  | Creates modify and deletes columns |   
+| `group_by()`  | Groups data by one or more variables |
+| `summarise()` | Summaries each group down to one row |
+|  `select()` | Keep or drop columns using their names  |
+| `filter()`  | Keeps rows that matches conditions |
+| `arrange()`  | order rows using columns variable |
+| `rename()`  | Rename a column |
 
-## 
-
-|  year|  length\_cm|
-|-----:|-----------:|
-|  1990|    5.673318|
-|  1991|    3.081224|
-|  1991|    4.592696|
-|  1992|    4.381523|
-|  1992|    5.597777|
-|  1992|    4.900052|
-
-The `dplyr` R library provides a fast and powerful way to do this calculation in a few lines of code:
-
-```{R}
-#| echo: true
-#| eval: false
-
-length_data %>% 
-  group_by(year) %>% 
-  summarize(mean_length_cm = mean(length_cm))
-```
-
-## Example 2
- Another process we often need to do is to "reshape" our data. Consider the following table that is in what we call "wide" format:
-
-| site   | 1990 | 1991 | ... | 1993 |
-|--------|------|------|-----|------|
-| gold   | 100  | 118  | ... | 112  |
-| lake   | 100  | 118  | ... | 112  |
-| ...    | ...  | ...  | ... | ...  |
-| dredge | 100  | 118  | ... | 112  |
-
+: Common `dplyr` functions {tbl-colwidths="[25,75]"}
 
 ##
 
-```{r}
-#| echo: true
-#| eval: false
+| Function name   | Description |
+|--------|------|
+| `pivot_longer()`  | transforms data from a wide to a long format |   
+| `pivot_wider()`  | transforms data from a long to a wide format |
+| `unite()` | Unite multiple columns into one by pasting strings together |
+|  `separate()` | Separate a character column into multiple columns with a regular expression or numeric locations |
 
-site_data %>% 
-  pivot_longer(-site, names_to = "year", values_to = "length")
-```
-
-| site   | year |  length|
-|--------|------|-------:|
-| gold   | 1990 |     101|
-| lake   | 1990 |     104|
-| dredge | 1990 |     144|
-| ...    | ...  |     ...|
-| dredge | 1993 |     145|
+: Common `tidyr` functions {tbl-colwidths="[25,75]"}
 
 
 # To RStudio!
@@ -200,42 +162,68 @@ Think about how we would calculate the average catch per region “by hand”. I
 
 ![](clean-wrangle-images/regions-split-apply-combine.png){fig-align="center"}
 
-## `filter()`
-`filter()` function to filter our `data.frame` to rows matching some condition
 
-GOAL: go back to our original `data.frame` and do some `filter()`ing
+## Example 1
+Suppose you have the following `data.frame` called `length_data` with data about salmon length and want to calculate the average length per year. 
 
-```{r}
-sse_catch <- catch_long %>%
-    filter(Region == "SSE")
+|  year|  length\_cm|
+|-----:|-----------:|
+|  1990|    5.673318|
+|  1991|    3.081224|
+|  1991|    4.592696|
+|  1992|    4.381523|
+|  1992|    5.597777|
+|  1992|    4.900052|
 
-head(sse_catch)
-```
+## 
 
-::: callout-note
-## Exercise
+|  year|  length\_cm|
+|-----:|-----------:|
+|  1990|    5.673318|
+|  1991|    3.081224|
+|  1991|    4.592696|
+|  1992|    4.381523|
+|  1992|    5.597777|
+|  1992|    4.900052|
 
-- Filter to just catches of over one million fish
-- Filter to just Chinook from the SSE region
-:::
+The `dplyr` R library provides a fast and powerful way to do this calculation in a few lines of code:
 
-```{r}
-#| code-summary: "Answer"
+```{R}
+#| echo: true
 #| eval: false
 
-## Catches over a million fish
-catch_million <- catch_long %>%
-    filter(catch > 1000000)
-
-## Chinook from SSE data
-chinook_see <- catch_long %>%
-    filter(Region == "SSE",
-           species == "Chinook")
-
-## OR
-chinook_see <- catch_long %>%
-    filter(Region == "SSE" & species == "Chinook")
+length_data %>% 
+  group_by(year) %>% 
+  summarize(mean_length_cm = mean(length_cm))
 ```
 
+## Example 2
+ Another process we often need to do is to "reshape" our data. Consider the following table that is in what we call "wide" format:
 
-## Sorting data using `arrange()`
+| site   | 1990 | 1991 | ... | 1993 |
+|--------|------|------|-----|------|
+| gold   | 100  | 118  | ... | 112  |
+| lake   | 100  | 118  | ... | 112  |
+| ...    | ...  | ...  | ... | ...  |
+| dredge | 100  | 118  | ... | 112  |
+
+
+##
+
+```{r}
+#| echo: true
+#| eval: false
+
+site_data %>% 
+  pivot_longer(-site, names_to = "year", values_to = "length")
+```
+
+| site   | year |  length|
+|--------|------|-------:|
+| gold   | 1990 |     101|
+| lake   | 1990 |     104|
+| dredge | 1990 |     144|
+| ...    | ...  |     ...|
+| dredge | 1993 |     145|
+
+
